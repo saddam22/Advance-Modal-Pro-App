@@ -6,19 +6,20 @@ const modals = document.querySelectorAll('.modal');
 modalButtons.forEach(btn => {
 btn.addEventListener('click', () => {
 	const modalId = btn.getAttribute('data-modal');
-	const modal = document.getElementById('modalId');
+	const modal = document.getElementById(modalId);
+	openModal(modal);
 	});
 });
 
 
 modals.forEach(modal => {
 	//close modal on overlay click
-	modal.addEventListener('click', () => {
+	modal.addEventListener('click', (e) => {
 		if(e.target === modal) closeModal(modal);
 	});
 
 	//close buttons
-	modal.querySelectorAll('.close, .cancel').forEach(btn =>{
+	modal.querySelectorAll('.close, .cancel, .confirm').forEach(btn =>{
 		btn.addEventListener('click', () => closeModal(modal));
 	});
 });
