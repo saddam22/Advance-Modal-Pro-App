@@ -1,7 +1,13 @@
+//Yheme Toggle
+const themeToggle = document.getElementById('themeToggle');
+themeToggle.addEventListener('click', () => {
+	document.body.classList.toggle('dark');
+});
+
 //select all modal triggers and modals
 const modalButtons = document.querySelectorAll('[data-modal]');
 const modals = document.querySelectorAll('.modal');
-const dynamicModalContent = document.getElementById('dynamicContent');
+const dynamicContent = document.getElementById('dynamicContent');
 
 modalButtons.forEach(btn => {
 btn.addEventListener('click', () => {
@@ -9,12 +15,16 @@ btn.addEventListener('click', () => {
 	const modal = document.getElementById(modalId);
 
 
-	// If dynamic modal, inject content
+	// Load API data for modal 3
 	if(modalId === 'modal3'){
-		dynamicModalContent.innerHTML = `
-		<h2 class="text-xl font-semibold mb-4">Dynamic Modal Content</h2>
-        <p class="mb-4">This content was dynamically injected using JavaScript. You can fetch API data here.</p>
+		fetch('https://jsonplaceholder.typicode.com/posts/1')
+		.then(res => res.json())
+		.then(data => {
+			dynamicContent.innerHTML = `
+		<h2 class="text-xl font-semibold mb-4 text-black dark:text-white">${data.title}</h2>
+        <p class="mb-4 text-gray-700 dark:text-gray-300">${data.body}</p>
 		`;
+		});	
 	}
 	openModal(modal);
 	});
@@ -25,9 +35,6 @@ function openModal(modal){
 	modal.classList.remove('hidden');
 	const content = modal.querySelector('.modal-content');
 	setTimeout(() => content.classList.add('scale-100'), 10); 
-
-
-	//Trap focus inside modal
 	trapFocus(modal);
 }
 
@@ -38,22 +45,33 @@ function closeModal(modal){
 	setTimeout(() => modal.classList.add('hidden'), 200);
 }
 
+// Close via overlay / close / cancel buttons
 modals.forEach(modal => {
-	//close modal on overlay click
 	modal.addEventListener('click', (e) => {
 		if(e.target === modal) closeModal(modal);
-			modal.querySelectorAll('.close, .cancel, .confirm').forEach(btn =>{
+	});
+	//close buttons
+			modal.querySelectorAll('.close, .cancel').forEach(btn =>{
 		btn.addEventListener('click', () => closeModal(modal));
+
+	});
+
+	//confirm buttons
+	modal.querySelectorAll('.confirm').forEach(btn => {
+		btn.addEventListener('click', () => {
+			alert("Confirmed!");
+			closeModal(modal);
 		});
 	});
+
 });
 
 
 //close modal via ESC key
 document.addEventListener('keydown', (e) => {
 	if (e.key === 'Escape') {
-		modals.forEach(modal => {
-			if (!modal.classList.contains('hidden')) closeModal(modal);
+		modals.forEach(m => {
+			if (!m.classList.contains('hidden')) closeModal(m);
 		});
 	}
 });
@@ -61,17 +79,19 @@ document.addEventListener('keydown', (e) => {
 
 //Focus trap function
 function trapFocus(modal){
-	const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not ([tabindex="-1"])');
-	const firstE1 = focusableElements[0];
-	const lastE1 = focusableElements[focusableElements.length -1];
+	const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+		);
 
-	firstE1.focus();
+	const firstEl = focusableElements[0];
+	const lastEl = focusableElements[focusableElements.length -1];
+
+	firstEl.focus();
 	modal.addEventListener('keydown', (e) => {
 		if(e.key === 'Tab'){
 			if(e.shiftKey){
-				if(document.activeElement === firstE1){e.preventDefault(); lastE1.focus(); }
+				if(document.activeElement === firstEl){e.preventDefault(); lastEl.focus(); }
 			}else{
-				if (document.activeElement === lastE1) { e.preventDefault(); firstE1.focus(); }
+				if(document.activeElement === lastEl) { e.preventDefault(); firstEl.focus(); }
 			}
 		}
 	});
